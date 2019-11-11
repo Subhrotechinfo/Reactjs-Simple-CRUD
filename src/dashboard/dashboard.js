@@ -78,9 +78,9 @@ class Dashboard extends React.Component {
                     console.log('Data',response);
                     return response.json()
                 })
-                .then((result)=>{
-                    console.log('Data Length Rendered --> ', result.data.data.length)
-                    console.log('Per', Math.ceil(result.data.count/result.data.limit));
+                .then((result) => {
+                    // console.log('Data Length Rendered --> ', result.data.data.length)
+                    // console.log('Per', Math.ceil(result.data.count/result.data.limit));
                     this.setState({
                         data:result.data.data,
                         length:result.data.data.length,
@@ -200,5 +200,4 @@ class Dashboard extends React.Component {
 }
 
 export default Dashboard;
-
 

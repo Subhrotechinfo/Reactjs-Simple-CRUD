@@ -24,20 +24,16 @@ class Login extends React.Component{
             //else back to login
             this.props.history.push('/');
         }
-
     }
 
     handleSubmit = (event) => {
         var url = 'https://localhost:2930/api/auth/login';
-        // let acc_id =localStorage.getItem('cur_acc_id');
         var data = {
             'username':event.target.email.value,
             'password':sha1(event.target.password.value),
             'cur_acc_id':17
         };
         event.preventDefault();
-        // console.log('Email',event.target.email.value);
-        // console.log('Password',sha1(event.target.password.value));
         fetch(url,{
             method:'POST',
             headers:{
@@ -58,8 +54,6 @@ class Login extends React.Component{
             return response.json();
         })
         .then((result) => {
-            // console.log('Got response');
-            // console.log('Result -->',result);
             if(result.data === true){
                 //redirect to dashboard
                 this.props.history.push("/dashboard");
