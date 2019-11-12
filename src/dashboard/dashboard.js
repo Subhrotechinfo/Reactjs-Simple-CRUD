@@ -11,8 +11,6 @@ import ReactPaginate from 'react-paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
-
 //position of the modal
 const customStyle = {
     content:{
@@ -33,7 +31,6 @@ class Dashboard extends React.Component {
     constructor(props){
         console.log('constructor', props)
         super();
-        
         this.token = props.authToken;
         this.state = {
             data:[],
@@ -50,28 +47,25 @@ class Dashboard extends React.Component {
         //bindings
         this.handleLog = this.handleLog.bind(this);
         this.openModal = this.openModal.bind(this);
-        this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.editTags = this.editTags.bind(this);
         this.addTags = this.addTags.bind(this);
         this.deleteTag = this.deleteTag.bind(this);
         this.sortData = this.sortData.bind(this);
     }
+    //sorting Data
     sortData(){
-        console.log('Sorting');
-        console.log('Data sort ', this.state.data);
-        var sort  = this.state.data.sort(function(a,b){
-            return b - a;
-        })
-        console.log(sort);
+        var comparator = (prop) => (a,b) =>  a[prop] == b[prop] ? 0 : a[prop] < b[prop] ? -1:1;
+        this.setState({
+            data:this.state.data.sort(comparator('name'))
+        });
     }
+
     //Model control for edit
     openModal= (data, obj) => {
-        
         if(obj.mode == "edit"){
             console.log('Edit mode');
             this.setState({modalIsOpen: true});
-            console.log('Open Modal', data, obj);
             this.setState({
                 editValue: data.name,
                 userId:data.id
@@ -88,25 +82,21 @@ class Dashboard extends React.Component {
         }
 
     }
-    afterOpenModal(){
-
-    }
     closeModal(){
-        console.log('Close Modal called');
         this.setState({modalIsOpen: false});
         this.setState({addmodalIsOpen: false});
         this.setState({deletemodalIsOpen:false});
     }
+
     notify = (msg) => toast(msg);
-    editSubmit(value){
-        // console.log('Value changes', event.target.value)
-        // console.log('Modal value',value);
+
+    editSubmit(){
+        // this.closeModal()
+        // this.notify('Nothing updated');
     }
     
     editTags (event){
         event.preventDefault();
-        console.log('Search value',event.target.searchName.value); 
-        console.log('Id--> of current user -->', this.state.userId);
         let editObj = {
             id:this.state.userId,
             name:event.target.searchName.value,
@@ -118,7 +108,6 @@ class Dashboard extends React.Component {
     // Modal control for delete
     addTags(event){
         event.preventDefault();
-        console.log('Add new tag event -->', event.target.addTag.value);
         let createObj = {
             name:event.target.addTag.value,
             mode:'create'
@@ -126,7 +115,6 @@ class Dashboard extends React.Component {
         this.Api(createObj);
     }
     deleteTag(){
-        console.log('Delete id --> ', this.state.tag_id);
         let deleteObj = {
             tag_id:this.state.tag_id,
             mode:'delete'
@@ -135,31 +123,15 @@ class Dashboard extends React.Component {
     }   
     
     Api = (obj) => { 
-        let url  = 'https://localhost:2930/api/';
-        var authtoken = localStorage.getItem('authToken');
-        // Hit API Add/ update
-        console.log('About to make api call',obj );
         if(obj.mode && obj.mode == 'create'){
-            console.log('Create New Tags API');
-            //tag/add
-            
-            fetch(url+'tag/add',{
-                method:'POST',
-                headers:{
-                    "content-type": "application/json; charset=utf-8",
-                    "Authorization":`Bearer ${authtoken}`,
-                    "web-lang": "en-US",              
-                },
-                body:JSON.stringify({account_id:this.account_id, name:obj.name})
-                })
+            this.fetchFunction('tag/add',{account_id:this.account_id, name:obj.name})
                 .then((response)=>{
                     return response.json()
                 })
                 .then((result)=>{
-                    console.log('Tag added successfully',result);
                     if(result.success == true ){
                         this.closeModal();
-                        this.apiCall();
+                        this.getTagsDetails();
                         this.notify(result.data)
                     }else if(result.success == false){
                         this.notify(result.error);
@@ -169,25 +141,14 @@ class Dashboard extends React.Component {
                     console.error(err);
                 })
         }else if(obj.mode && obj.mode == 'edit'){
-            console.log('Edit Tags API', obj.id);
-            //tag/add
-            fetch(url+'tag/add',{
-                method:'POST',
-                headers:{
-                    "content-type": "application/json; charset=utf-8",
-                    "Authorization":`Bearer ${authtoken}`,
-                    "web-lang": "en-US",              
-                },
-                body:JSON.stringify({account_id:this.account_id,name:obj.name,tag_id:obj.id})
-                })
+            this.fetchFunction('tag/add',{account_id:this.account_id,name:obj.name,tag_id:obj.id})
                 .then((response)=>{
                     return response.json()
                 })
                 .then((result)=>{
-                    console.log('Tag added successfully',result);
                     if(result.success == true ){
                         this.closeModal();
-                        this.apiCall();
+                        this.getTagsDetails();
                         this.notify(result.data);
                     }
                 })
@@ -195,27 +156,18 @@ class Dashboard extends React.Component {
                     console.error(err);
                 })
         }else if(obj.mode && obj.mode == 'delete'){
-            fetch(url+'tag/delete',{
-                method:'POST',
-                headers:{
-                    "content-type": "application/json; charset=utf-8",
-                    "Authorization":`Bearer ${authtoken}`,
-                    "web-lang": "en-US",              
-                },
-                body:JSON.stringify({tag_id:obj.tag_id})
-                })
+            this.fetchFunction('tag/delete',{tag_id:obj.tag_id})
                 .then((response)=>{
                     return response.json();
                 })
                 .then((result)=>{
-                    console.log('deleted',result)
                     if(result.success == true){
                         this.closeModal();
-                        this.apiCall();
+                        this.getTagsDetails();
                         this.notify(result.data);
                     }else{
                         this.closeModal();
-                        this.apiCall();
+                        this.getTagsDetails();
                         this.notify('something went wrong');
                     }
                 })
@@ -225,51 +177,45 @@ class Dashboard extends React.Component {
         }
     }
 
-    fetchFunction = () => {
-
+    fetchFunction = (URL,bodyObj) => {
+        let url  = 'https://localhost:2930/api/';
+        var authtoken = localStorage.getItem('authToken');
+        return fetch(url+URL,{
+            method:'POST',
+            headers:{
+                "content-type": "application/json; charset=utf-8",
+                "Authorization":`Bearer ${authtoken}`,
+                "web-lang": "en-US",              
+            },
+            body:JSON.stringify(bodyObj)
+            })
     }
 
     handlePageChange = data => {
-        console.log('Page Change event', );
         let selected = data.selected;
-        console.log('Page-->',selected);
         if(selected == 0){
             this.setState({page:selected+1}, () => {
-                console.log('About to call Api');
-                this.apiCall();
+                this.getTagsDetails();
             });
         } 
         else if(selected == 1){
             this.setState({page:selected+1}, () => {
-                console.log('About to call Api');
-                this.apiCall();
+                this.getTagsDetails();
             }); 
         }else{
             this.setState({page:selected+1}, () => {
-                console.log('About to call Api');
-                this.apiCall();
+                this.getTagsDetails();
             });
         }
     }
 
-    apiCall(){
-        console.log('Now Search Value -->', this.state.search);
+    getTagsDetails(){
         //make the post request to the api
         let url  = 'https://localhost:2930/api/tag/list';
         var authtoken = localStorage.getItem('authToken');
         if(authtoken){
-            fetch(url,{
-                method:'POST',
-                headers:{
-                    "content-type": "application/json; charset=utf-8",
-                    "Authorization":`Bearer ${authtoken}`,
-                    "web-lang": "en-US",              
-                },
-                body:JSON.stringify({"limit": this.state.limit , "page": this.state.page, "search":this.state.search})
-                })
+            this.fetchFunction('tag/list',{"limit": this.state.limit , "page": this.state.page, "search":this.state.search})
                 .then((response)=>{
-                    //response received
-                    console.log('Data',response);
                     return response.json()
                 })
                 .then((result) => {
@@ -283,7 +229,6 @@ class Dashboard extends React.Component {
                         })  
                         this.account_id =result.data.data[0].account_id 
                     }
-                    console.log('Account id',this.account_id);
                 })
                 .catch((err)=>{
                     console.error(err);
@@ -295,13 +240,11 @@ class Dashboard extends React.Component {
     }
 
     componentWillMount(){
-        console.log('Component Will Mount -->');
-        this.apiCall();
+        this.getTagsDetails();
     }
     handleLog(event){
-        console.log(event.target.value);
         this.setState({search: event.target.value}, ()=>{
-            this.apiCall()
+            this.getTagsDetails()
         });
     }
     render(){
@@ -346,7 +289,7 @@ class Dashboard extends React.Component {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name <a onClick={this.sortData}>&#8595;&#8593;</a></th>
+                                    <th>Name <a className= "tagHeader" onClick={this.sortData}>&#8595;&#8593;</a></th>
                                     <th>Action</th>
                                 </tr>
                             </thead>        
@@ -360,6 +303,7 @@ class Dashboard extends React.Component {
                                                     <a onClick =  {() => {
                                                         // console.log(user.id)
                                                         // this.setState({userId:user.id})
+                                                        
                                                         this.openModal(user, {mode:"edit"});
                                                     }} className="editIcon"><i className="fa fa-edit"></i></a>
 
@@ -374,24 +318,27 @@ class Dashboard extends React.Component {
                             </tbody>
                         </table>
                     </div>
-                    <div className="pagination col-sm-12">
-                            <div className="col-sm-4">
-                                <span>{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
-                            </div>
-                            <div className="col-sm-8 text-center">
-                                <ReactPaginate
-                                    previousLabel={'previous'}
-                                    nextLabel={'next'}
-                                    breakLabel={'...'}
-                                    breakClassName={'break-me'}
-                                    pageCount={this.state.pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={5}
-                                    onPageChange={this.handlePageChange}
-                                    containerClassName={'pagination'}
-                                    // subContainerClassName={'pages pagination'}
-                                    // activeClassName={'active'}
-                                />
+                    <div className="col-sm-12">
+                            <div className="container">
+                                <div className="col-sm-4">
+                                    <span className="text-muted">{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
+                                </div>
+                                <div className="col-sm-8 pagi">
+                                    <ReactPaginate
+                                        previousLabel={'previous'}
+                                        nextLabel={'next'}
+                                        breakLabel={'...'}
+                                        breakClassName={'break-me'}
+                                        pageCount={this.state.pageCount}
+                                        marginPagesDisplayed={2}
+                                        pageRangeDisplayed={5}
+                                        onPageChange={this.handlePageChange}
+                                        containerClassName={'pagination'}
+                                        previousClassName={'react-paginate'}
+                                        // subContainerClassName={'pages pagination'}
+                                        // activeClassName={'active'}
+                                    />
+                                </div>
                             </div>
                     </div>
                 </div>
@@ -399,7 +346,6 @@ class Dashboard extends React.Component {
                 {/* Modal Box For Edit*/}
                 <Modal
                     isOpen={this.state.modalIsOpen}
-                    onAfterOpen = {this.afterOpenModal}
                     onRequestClose = {this.closeModal}
                     style={customStyle}
                     contentLabel = "EditModalBox"
@@ -412,30 +358,26 @@ class Dashboard extends React.Component {
                     {/* Modal Body */}
                     <div>
                         <form onSubmit={this.editTags}>
-                        <div className="modal-body">
-                            <input type="text" name="searchName" value={this.state.editValue} onChange=
-                                { e => 
-                                    {   e.preventDefault();
-                                        console.log(e.target.value)
-                                        this.setState({editValue: e.target.value })
-                                        // this.editSubmit(e.target.value) 
-                                    }
-                                } className="form-control"/>
-                        </div>
-                            <button type="submit" className="btn btn-success">Update</button>
+                            <div className="modal-body">
+                                <input type="text" name="searchName" value={this.state.editValue} onChange=
+                                    { e => 
+                                        {   e.preventDefault();
+                                            this.setState({editValue: e.target.value })
+                                            // this.editSubmit(e.target.value) 
+                                        }
+                                    } className="form-control"/>
+                            </div>
+                            {/* Modal Footer */}
+                            <div className="Modal-footer">
+                                <button type="submit" className="btn btn-info">Update</button>&nbsp;
+                                <button type="button" className="btn btn-light" onClick={this.closeModal}>Close</button>
+                            </div>
                         </form>
                     </div>
-                    {/* Modal Footer */}
-                    <div className="Modal-footer">
-                        {/* <button type="submit" className="btn btn-success">Save</button>&nbsp;&nbsp; */}
-                        <button type="button" className="btn btn-danger" onClick={this.closeModal}>Close</button>
-                    </div>
                 </Modal>
-
                 {/* Add Modal Box */}
                 <Modal
                     isOpen={this.state.addmodalIsOpen}
-                    onAfterOpen = {this.afterOpenModal}
                     onRequestClose = {this.closeModal}
                     style={customStyle}
                     contentLabel = "AddModalBox"
@@ -451,8 +393,8 @@ class Dashboard extends React.Component {
                             <div className="modal-body">
                                 <input type="text" name="addTag" className="form-control"/>
                             </div>
-                            <button type="submit" className="btn btn-success">Add</button>&nbsp;
-                            <button type="button" className="btn btn-danger" onClick={this.closeModal}>Cancel</button>
+                            <button type="submit" className="btn btn-info">Save</button>&nbsp;
+                            <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
                         </form>
                     </div>
                 </Modal>
@@ -460,7 +402,6 @@ class Dashboard extends React.Component {
                 {/* Delete Modal Box */}
                 <Modal 
                     isOpen={this.state.deletemodalIsOpen}
-                    onAfterOpen = {this.afterOpenModal}
                     onRequestClose = {this.closeModal}
                     style={customStyle}
                     contentLabel = "AddModalBox"
@@ -473,11 +414,10 @@ class Dashboard extends React.Component {
                     <div>
                         <div className="modal-body">
                                 <p>Are you sure you want to delete ?</p>
-                                <button type="button" onClick={this.deleteTag} className="btn btn-success">Sure</button>&nbsp;
-                                <button type="button" className="btn btn-danger" onClick={this.closeModal}>Cancel</button>
+                                <button type="button" onClick={this.deleteTag} className="btn btn-info">Sure</button>&nbsp;
+                                <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
                         </div>
                     </div>
-
                 </Modal>
             </div>
         );
@@ -485,5 +425,6 @@ class Dashboard extends React.Component {
 }
 
 export default Dashboard;
+
 
 

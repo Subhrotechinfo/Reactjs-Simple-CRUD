@@ -27,12 +27,14 @@ export default class SideBar extends React.Component{
                    
                         <NavItem eventKey = "profile">
                             <NavIcon>
-                                <i className="fa fa-user" style={{ fontSize: '1.75em' }}></i>
+                                <Link to="/profile">
+                                    <i className="fa fa-user" style={{ fontSize: '1.75em' }}></i>
+                                </Link>
                             </NavIcon>
                             <NavText>
                             <Link to="/profile">
                                 Profile
-                                </Link>
+                            </Link>
                             </NavText>
                         </NavItem>        
                      

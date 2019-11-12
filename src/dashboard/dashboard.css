@@ -14,17 +14,24 @@
 
 }
 
-#react-paginate ul {
+.react-paginate ul {
     display: inline-block;
     padding-left: 15px;
     padding-right: 15px;
 }
 
-#react-paginate li {
+.react-paginate li {
     display: inline-block;
 }
-
-
+.pagi{
+    padding-left: 850px;
+}
+.total{
+    padding-top: 100px;
+}
+.tagHeader :hover{
+    cursor: pointer;
+}
 
 
 
