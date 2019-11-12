@@ -10,9 +10,6 @@ class Login extends React.Component{
         this.state = {value: ''};
         this.handleSubmit = this.handleSubmit.bind(this);
     }
-    // componentDidMount(){
-    //     // console.log('Hello Subhro Chatterjee');   
-    // }
     handleChange(){
     }
     componentWillMount(){
@@ -45,11 +42,9 @@ class Login extends React.Component{
             body:JSON.stringify(data)
         })
         .then((response) => {
-            console.log(response);
             if(response.status === 200){
                 let authToken =response.headers.get('auth-token');
                 localStorage.setItem('authToken', authToken);
-                console.log('Auth Token', authToken);
             }
             return response.json();
         })
@@ -87,7 +82,8 @@ class Login extends React.Component{
         )
     }
 }
-
-
-
 export default Login;
+
+
+
+

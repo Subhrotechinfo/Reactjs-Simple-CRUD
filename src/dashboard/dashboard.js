@@ -25,7 +25,6 @@ const customStyle = {
 };
 
 Modal.setAppElement(document.getElementById('root'));
-
 class Dashboard extends React.Component {
     account_id ='';
     constructor(props){
@@ -64,23 +63,22 @@ class Dashboard extends React.Component {
     //Model control for edit
     openModal= (data, obj) => {
         if(obj.mode == "edit"){
-            console.log('Edit mode');
+            // console.log('Edit mode');
             this.setState({modalIsOpen: true});
             this.setState({
                 editValue: data.name,
                 userId:data.id
             });
         }else if(obj.mode == "create"){
-            console.log('create mode');
+            // console.log('create mode');
             this.setState({addmodalIsOpen: true});
         }else if(obj.mode == 'delete'){
             this.setState({deletemodalIsOpen: true});
-            console.log('Delete Mode', data);
+            // console.log('Delete Mode', data);
             if(data){
                 this.setState({tag_id: data.id});
             }
         }
-
     }
     closeModal(){
         this.setState({modalIsOpen: false});
@@ -120,7 +118,7 @@ class Dashboard extends React.Component {
             mode:'delete'
         }
         this.Api(deleteObj);
-    }   
+    }
     
     Api = (obj) => { 
         if(obj.mode && obj.mode == 'create'){
@@ -197,12 +195,13 @@ class Dashboard extends React.Component {
             this.setState({page:selected+1}, () => {
                 this.getTagsDetails();
             });
-        } 
-        else if(selected == 1){
-            this.setState({page:selected+1}, () => {
-                this.getTagsDetails();
-            }); 
-        }else{
+        }
+        // else if(selected == 1){
+        //     this.setState({page:selected+1}, () => {
+        //         this.getTagsDetails();
+        //     }); 
+        // }
+        else{
             this.setState({page:selected+1}, () => {
                 this.getTagsDetails();
             });
@@ -248,14 +247,89 @@ class Dashboard extends React.Component {
         });
     }
     render(){
-        return (
+        let deleteModal =
+        <Modal 
+        isOpen={this.state.deletemodalIsOpen}
+        onRequestClose = {this.closeModal}
+        style={customStyle}
+        contentLabel = "AddModalBox"
+        >
+                {/* Modal Header */}
+                <div className="modal-header">
+                    <h4 className="modal-title">Delete Tags</h4>
+                    <button type="button" className="close" onClick={this.closeModal}>&times;</button>
+                </div>
+                <div>
+                    <div className="modal-body">
+                            <p>Are you sure you want to delete ?</p>
+                            <button type="button" onClick={this.deleteTag} className="btn btn-info">Sure</button>&nbsp;
+                            <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
+                    </div>
+                </div>
+        </Modal>;
+        let addModal = 
+            <Modal
+            isOpen={this.state.addmodalIsOpen}
+            onRequestClose = {this.closeModal}
+            style={customStyle}
+            contentLabel = "AddModalBox"
+            >
+                {/* Modal Header */}
+                <div className="modal-header">
+                    <h4 className="modal-title">Add Tags</h4>
+                    <button type="button" className="close" onClick={this.closeModal}>&times;</button>
+                </div>
+                {/* Modal Body */}
+                <div>
+                    <form onSubmit={this.addTags}>
+                        <div className="modal-body">
+                            <input type="text" name="addTag" className="form-control"/>
+                        </div>
+                        <button type="submit" className="btn btn-info">Save</button>&nbsp;
+                        <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
+                    </form>
+                </div>
+            </Modal>;
+        let editModal = 
+            <Modal
+                isOpen={this.state.modalIsOpen}
+                onRequestClose = {this.closeModal}
+                style={customStyle}
+                contentLabel = "EditModalBox"
+                >
+                        {/* Modal Header */}
+                        <div className="modal-header">
+                            <h4 className="modal-title">Edit Tags</h4>
+                            <button type="button" className="close" onClick={this.closeModal}>&times;</button>
+                        </div>
+                        {/* Modal Body */}
+                        <div>
+                            <form onSubmit={this.editTags}>
+                                <div className="modal-body">
+                                    <input type="text" name="searchName" value={this.state.editValue} onChange=
+                                        { e => 
+                                            {   e.preventDefault();
+                                                this.setState({editValue: e.target.value })
+                                                // this.editSubmit(e.target.value) 
+                                            }
+                                        } className="form-control"/>
+                                </div>
+                                {/* Modal Footer */}
+                                <div className="Modal-footer">
+                                    <button type="submit" className="btn btn-info">Update</button>&nbsp;
+                                    <button type="button" className="btn btn-light" onClick={this.closeModal}>Close</button>
+                                </div>
+                            </form>
+                        </div>
+            </Modal>;
+        return(
             <div>
                 <div className="col-sm-12">
                     <Header/>
                 </div>
                 <SideBar/>
                 <div className="container">
-                <ToastContainer />
+                <ToastContainer/>
                     <div>
                         <div className="col-md-12">
                             <div className="row">
@@ -271,14 +345,12 @@ class Dashboard extends React.Component {
                                     <p>Tags allow your users to define what the conversation was about. For example, an user can ‘tag’ a conversation as ‘support’ - meaning the customer required support</p>
                                 </div>
                                 <div className="col-md-12">
-                                    {/* <form> */}
                                         <div className="ui search">
                                             <div className="ui icon input">
                                                 <input className="prompt"  type="text" placeholder="Search by tag name" onKeyUp={this.handleLog}/>
                                                 <i className="search icon"></i>
                                             </div>
                                         </div>
-                                    {/* </form> */}
                                 </div>
                             </div>
                         </div>
@@ -303,10 +375,8 @@ class Dashboard extends React.Component {
                                                     <a onClick =  {() => {
                                                         // console.log(user.id)
                                                         // this.setState({userId:user.id})
-                                                        
                                                         this.openModal(user, {mode:"edit"});
                                                     }} className="editIcon"><i className="fa fa-edit"></i></a>
-
                                                     {/* <a onClick={this.editEvent} className="editIcon"><i className="fa fa-edit"></i></a> */}
                                                     <a onClick ={()=>{
                                                         this.openModal(user, {mode:"delete"})
@@ -342,89 +412,18 @@ class Dashboard extends React.Component {
                             </div>
                     </div>
                 </div>
-                
-                {/* Modal Box For Edit*/}
-                <Modal
-                    isOpen={this.state.modalIsOpen}
-                    onRequestClose = {this.closeModal}
-                    style={customStyle}
-                    contentLabel = "EditModalBox"
-                >
-                    {/* Modal Header */}
-                    <div className="modal-header">
-                        <h4 className="modal-title">Edit Tags</h4>
-                        <button type="button" className="close" onClick={this.closeModal}>&times;</button>
-                    </div>
-                    {/* Modal Body */}
-                    <div>
-                        <form onSubmit={this.editTags}>
-                            <div className="modal-body">
-                                <input type="text" name="searchName" value={this.state.editValue} onChange=
-                                    { e => 
-                                        {   e.preventDefault();
-                                            this.setState({editValue: e.target.value })
-                                            // this.editSubmit(e.target.value) 
-                                        }
-                                    } className="form-control"/>
-                            </div>
-                            {/* Modal Footer */}
-                            <div className="Modal-footer">
-                                <button type="submit" className="btn btn-info">Update</button>&nbsp;
-                                <button type="button" className="btn btn-light" onClick={this.closeModal}>Close</button>
-                            </div>
-                        </form>
-                    </div>
-                </Modal>
-                {/* Add Modal Box */}
-                <Modal
-                    isOpen={this.state.addmodalIsOpen}
-                    onRequestClose = {this.closeModal}
-                    style={customStyle}
-                    contentLabel = "AddModalBox"
-                >
-                    {/* Modal Header */}
-                    <div className="modal-header">
-                        <h4 className="modal-title">Add Tags</h4>
-                        <button type="button" className="close" onClick={this.closeModal}>&times;</button>
-                    </div>
-                    {/* Modal Body */}
-                    <div>
-                        <form onSubmit={this.addTags}>
-                            <div className="modal-body">
-                                <input type="text" name="addTag" className="form-control"/>
-                            </div>
-                            <button type="submit" className="btn btn-info">Save</button>&nbsp;
-                            <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
-                        </form>
-                    </div>
-                </Modal>
 
+                {/* Modal Box For Edit*/}
+                {editModal}
+
+                {/* Add Modal Box */}
+                {addModal}
+                
                 {/* Delete Modal Box */}
-                <Modal 
-                    isOpen={this.state.deletemodalIsOpen}
-                    onRequestClose = {this.closeModal}
-                    style={customStyle}
-                    contentLabel = "AddModalBox"
-                    >
-                    {/* Modal Header */}
-                    <div className="modal-header">
-                        <h4 className="modal-title">Delete Tags</h4>
-                        <button type="button" className="close" onClick={this.closeModal}>&times;</button>
-                    </div>
-                    <div>
-                        <div className="modal-body">
-                                <p>Are you sure you want to delete ?</p>
-                                <button type="button" onClick={this.deleteTag} className="btn btn-info">Sure</button>&nbsp;
-                                <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
-                        </div>
-                    </div>
-                </Modal>
+                {deleteModal}
             </div>
         );
     }
 }
-
 export default Dashboard;
-
-
 

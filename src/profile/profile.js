@@ -6,7 +6,6 @@ import './profile.css';
 import image from '../../src/profile.jpeg'
 
 class Profile extends React.Component{
-
     render(){
         return(
             <div>

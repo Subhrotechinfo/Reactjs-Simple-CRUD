@@ -15,9 +15,7 @@ class Header extends React.Component{
         let token = localStorage.getItem('authToken');
         if(token){
             localStorage.removeItem('authToken');
-            // hashHistory.push('/');
             this.props.history.push('/');
-            console.log('-->',this.props)
         }
     }
 
@@ -42,3 +40,4 @@ class Header extends React.Component{
 }
 
 export default withRouter(Header);
+
