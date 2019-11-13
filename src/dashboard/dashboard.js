@@ -54,7 +54,7 @@ class Dashboard extends React.Component {
     }
     //sorting Data
     sortData(){
-        var comparator = (prop) => (a,b) =>  a[prop] == b[prop] ? 0 : a[prop] < b[prop] ? -1:1;
+        var comparator = (prop) => (a,b) =>  a[prop] === b[prop] ? 0 : a[prop] < b[prop] ? -1:1;
         this.setState({
             data:this.state.data.sort(comparator('name'))
         });
@@ -62,17 +62,17 @@ class Dashboard extends React.Component {
 
     //Model control for edit
     openModal= (data, obj) => {
-        if(obj.mode == "edit"){
+        if(obj.mode === "edit"){
             // console.log('Edit mode');
             this.setState({modalIsOpen: true});
             this.setState({
                 editValue: data.name,
                 userId:data.id
             });
-        }else if(obj.mode == "create"){
+        }else if(obj.mode === "create"){
             // console.log('create mode');
             this.setState({addmodalIsOpen: true});
-        }else if(obj.mode == 'delete'){
+        }else if(obj.mode === 'delete'){
             this.setState({deletemodalIsOpen: true});
             // console.log('Delete Mode', data);
             if(data){
@@ -393,6 +393,7 @@ class Dashboard extends React.Component {
                                 <div className="col-sm-4">
                                     <span className="text-muted">{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
                                 </div>
+                                
                                 <div className="col-sm-8 pagi">
                                     <ReactPaginate
                                         previousLabel={'previous'}
@@ -426,4 +427,5 @@ class Dashboard extends React.Component {
     }
 }
 export default Dashboard;
+
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link , hashHistory,Route} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 // import AppRouter from '../app-router';
 import './header.css';
 

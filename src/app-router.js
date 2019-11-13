@@ -2,7 +2,7 @@ import React from 'react';
  
 import Login from './login/login';
 import Dashboard from './dashboard/dashboard';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route} from 'react-router-dom'
 import Profile from './profile/profile';
 
 
