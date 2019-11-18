@@ -7,7 +7,6 @@ import Header from '../header/header';
 import SideBar from '../side-bar/sidebar';
 import Modal from 'react-modal';
 import ReactPaginate from 'react-paginate';
-
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,8 +23,10 @@ const customStyle = {
     }
 };
 
+
 Modal.setAppElement(document.getElementById('root'));
 class Dashboard extends React.Component {
+
     account_id ='';
     constructor(props){
         console.log('constructor', props)
@@ -35,11 +36,11 @@ class Dashboard extends React.Component {
             data:[],
             modalIsOpen:false,
             addmodalIsOpen:false,
-            page:0,
+            page:1,
             activePage:1,
             PER_PAGE:10,
             pageRangeDisplayed:0,
-            limit:25,
+            limit:'10',
             value:'',
             mode:'',
         };
@@ -51,7 +52,11 @@ class Dashboard extends React.Component {
         this.addTags = this.addTags.bind(this);
         this.deleteTag = this.deleteTag.bind(this);
         this.sortData = this.sortData.bind(this);
+        // toast.configure({
+        //     autoClose: 2000
+        // })
     }
+    
     //sorting Data
     sortData(){
         var comparator = (prop) => (a,b) =>  a[prop] === b[prop] ? 0 : a[prop] < b[prop] ? -1:1;
@@ -86,7 +91,22 @@ class Dashboard extends React.Component {
         this.setState({deletemodalIsOpen:false});
     }
 
-    notify = (msg) => toast(msg);
+    notify = (msg,type) => {
+        // console.log('Type -->',type);
+        switch (type) {
+            case 'success':
+                toast.success(msg);break;
+            case 'error':
+                toast.error(msg);break;
+            case 'warn':
+                toast.warn(msg);break;
+            case 'info':
+                toast.info(msg); break;
+            default:
+                toast(msg);        
+        }
+    }
+    
 
     editSubmit(){
         // this.closeModal()
@@ -120,8 +140,8 @@ class Dashboard extends React.Component {
         this.Api(deleteObj);
     }
     
-    Api = (obj) => { 
-        if(obj.mode && obj.mode == 'create'){
+    Api = (obj) => {
+        if(obj.mode && obj.mode === 'create'){
             this.fetchFunction('tag/add',{account_id:this.account_id, name:obj.name})
                 .then((response)=>{
                     return response.json()
@@ -130,16 +150,17 @@ class Dashboard extends React.Component {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data)
+                        this.notify(result.data, 'success');
                     }else if(result.success == false){
-                        this.notify(result.error);
+                        this.notify(result.error, 'error');
                     }
                 })
                 .catch((err)=>{
                     console.error(err);
+                    this.notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'edit'){
-            this.fetchFunction('tag/add',{account_id:this.account_id,name:obj.name,tag_id:obj.id})
+            this.fetchFunction('tag/add',{name:obj.name,tag_id:obj.id})
                 .then((response)=>{
                     return response.json()
                 })
@@ -147,11 +168,12 @@ class Dashboard extends React.Component {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data);
+                        this.notify(result.data,'success');
                     }
                 })
                 .catch((err)=>{
                     console.error(err);
+                    this.notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'delete'){
             this.fetchFunction('tag/delete',{tag_id:obj.tag_id})
@@ -162,15 +184,16 @@ class Dashboard extends React.Component {
                     if(result.success == true){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data);
+                        this.notify(result.data, 'success');
                     }else{
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify('something went wrong');
+                        this.notify('something went wrong','error');
                     }
                 })
                 .catch((err)=>{
                     console.error(err);
+                    this.notify('Something went wrong','error');
                 })
         }
     }
@@ -213,7 +236,7 @@ class Dashboard extends React.Component {
         let url  = 'https://localhost:2930/api/tag/list';
         var authtoken = localStorage.getItem('authToken');
         if(authtoken){
-            this.fetchFunction('tag/list',{"limit": this.state.limit , "page": this.state.page, "search":this.state.search})
+            this.fetchFunction('tag/list',{"limit": this.state.limit,"page": this.state.page,"search":this.state.search})
                 .then((response)=>{
                     return response.json()
                 })
@@ -283,7 +306,7 @@ class Dashboard extends React.Component {
                 <div>
                     <form onSubmit={this.addTags}>
                         <div className="modal-body">
-                            <input type="text" name="addTag" className="form-control"/>
+                            <input type="text" name="addTag" className="form-control" required/>
                         </div>
                         <button type="submit" className="btn btn-info">Save</button>&nbsp;
                         <button type="button" className="btn btn-light" onClick={this.closeModal}>Cancel</button>
@@ -309,8 +332,7 @@ class Dashboard extends React.Component {
                                     <input type="text" name="searchName" value={this.state.editValue} onChange=
                                         { e => 
                                             {   e.preventDefault();
-                                                this.setState({editValue: e.target.value })
-                                                // this.editSubmit(e.target.value) 
+                                                this.setState({editValue: e.target.value }) 
                                             }
                                         } className="form-control"/>
                                 </div>
@@ -329,7 +351,7 @@ class Dashboard extends React.Component {
                 </div>
                 <SideBar/>
                 <div className="container">
-                <ToastContainer/>
+                <ToastContainer autoClose={3000}/>
                     <div>
                         <div className="col-md-12">
                             <div className="row">
@@ -344,10 +366,10 @@ class Dashboard extends React.Component {
                                 <div className="col-md-12">
                                     <p>Tags allow your users to define what the conversation was about. For example, an user can ‘tag’ a conversation as ‘support’ - meaning the customer required support</p>
                                 </div>
-                                <div className="col-md-12">
+                                <div className="col-md-12 search-box">
                                         <div className="ui search">
                                             <div className="ui icon input">
-                                                <input className="prompt"  type="text" placeholder="Search by tag name" onKeyUp={this.handleLog}/>
+                                                <input className="prompt"  type="text" placeholder="Search your name here ^-^" onKeyUp={this.handleLog}/>
                                                 <i className="search icon"></i>
                                             </div>
                                         </div>
@@ -390,11 +412,30 @@ class Dashboard extends React.Component {
                     </div>
                     <div className="col-sm-12">
                             <div className="container">
+                                <div className="col-sm-1">
+                                    <select className="form-control" value={this.state.limit} onChange=
+                                                                {
+                                                                    (event) => {
+                                                                        event.persist();
+                                                                        // console.log('select value event',event.target.value);
+                                                                        this.setState({limit:event.target.value}, ()=>{
+                                                                            this.getTagsDetails();
+                                                                        });
+                                                                    }
+                                                                }
+                                        >
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
+                                    </select>
+                                </div>
                                 <div className="col-sm-4">
                                     <span className="text-muted">{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
                                 </div>
-                                
-                                <div className="col-sm-8 pagi">
+                                <div className="col-sm-7 pagi">
                                     <ReactPaginate
                                         previousLabel={'previous'}
                                         nextLabel={'next'}
@@ -427,5 +468,4 @@ class Dashboard extends React.Component {
     }
 }
 export default Dashboard;
-
 

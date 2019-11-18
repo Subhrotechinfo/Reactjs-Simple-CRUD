@@ -42,6 +42,3 @@ class Appy extends React.Component{
 }
 export default Appy;
 
-
-
-
