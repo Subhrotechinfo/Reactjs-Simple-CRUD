@@ -23,10 +23,8 @@ const customStyle = {
     }
 };
 
-
 Modal.setAppElement(document.getElementById('root'));
 class Dashboard extends React.Component {
-
     account_id ='';
     constructor(props){
         console.log('constructor', props)
@@ -106,13 +104,12 @@ class Dashboard extends React.Component {
                 toast(msg);        
         }
     }
-    
 
     editSubmit(){
         // this.closeModal()
         // this.notify('Nothing updated');
     }
-    
+
     editTags (event){
         event.preventDefault();
         let editObj = {
@@ -143,10 +140,10 @@ class Dashboard extends React.Component {
     Api = (obj) => {
         if(obj.mode && obj.mode === 'create'){
             this.fetchFunction('tag/add',{account_id:this.account_id, name:obj.name})
-                .then((response)=>{
+                .then((response) => {
                     return response.json()
                 })
-                .then((result)=>{
+                .then((result) => {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
@@ -155,23 +152,23 @@ class Dashboard extends React.Component {
                         this.notify(result.error, 'error');
                     }
                 })
-                .catch((err)=>{
+                .catch((err) => {
                     console.error(err);
                     this.notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'edit'){
             this.fetchFunction('tag/add',{name:obj.name,tag_id:obj.id})
-                .then((response)=>{
+                .then((response) => {
                     return response.json()
                 })
-                .then((result)=>{
+                .then((result) => {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
                         this.notify(result.data,'success');
                     }
                 })
-                .catch((err)=>{
+                .catch((err) => {
                     console.error(err);
                     this.notify('Something went wrong','error');
                 })
@@ -250,6 +247,13 @@ class Dashboard extends React.Component {
                             TOTAL_COUNT:result.data.count, 
                         })  
                         this.account_id =result.data.data[0].account_id 
+                    }else if(result.data.data.length == 0){
+                        this.setState({
+                            data:result.data.data,
+                            length:result.data.data.length,
+                            pageCount: Math.ceil(result.data.count/result.data.limit),
+                            TOTAL_COUNT:result.data.count, 
+                        })
                     }
                 })
                 .catch((err)=>{
@@ -260,12 +264,11 @@ class Dashboard extends React.Component {
             this.props.history.push('/');
         }
     }
-
     componentWillMount(){
         this.getTagsDetails();
     }
     handleLog(event){
-        this.setState({search: event.target.value}, ()=>{
+        this.setState({search: event.target.value, page:1}, ()=>{
             this.getTagsDetails()
         });
     }
@@ -412,44 +415,51 @@ class Dashboard extends React.Component {
                     </div>
                     <div className="col-sm-12">
                             <div className="container">
-                                <div className="col-sm-1">
-                                    <select className="form-control" value={this.state.limit} onChange=
-                                                                {
-                                                                    (event) => {
-                                                                        event.persist();
-                                                                        // console.log('select value event',event.target.value);
-                                                                        this.setState({limit:event.target.value}, ()=>{
-                                                                            this.getTagsDetails();
-                                                                        });
-                                                                    }
-                                                                }
-                                        >
-                                        <option value="10">10</option>
-                                        <option value="20">20</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                        <option value="200">200</option>
-                                    </select>
-                                </div>
-                                <div className="col-sm-4">
-                                    <span className="text-muted">{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
-                                </div>
-                                <div className="col-sm-7 pagi">
-                                    <ReactPaginate
-                                        previousLabel={'previous'}
-                                        nextLabel={'next'}
-                                        breakLabel={'...'}
-                                        breakClassName={'break-me'}
-                                        pageCount={this.state.pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={5}
-                                        onPageChange={this.handlePageChange}
-                                        containerClassName={'pagination'}
-                                        previousClassName={'react-paginate'}
-                                        // subContainerClassName={'pages pagination'}
-                                        // activeClassName={'active'}
-                                    />
+                                <div className="row footerContainer">
+                                    <div className="col-sm-1 text-right padding">Show</div>
+                                    <div className="col-sm-1"> 
+                                            <select className="form-control" value={this.state.limit} onChange=
+                                                                        {
+                                                                            (event) => {
+                                                                                event.persist();
+                                                                                // console.log('select value event',event.target.value);
+                                                                                this.setState({limit:event.target.value,page:1}, ()=>{
+                                                                                    this.getTagsDetails();
+                                                                                });
+                                                                            }
+                                                                        }
+                                                >
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="200">200</option>
+                                            </select>
+                                    </div>
+                                    <div className="col-sm-1 text-left padding">entries</div>
+                                    <div className="col-sm-2 padding ">
+                                        <span className="text-muted bgColor">{this.state.TOTAL_COUNT > 0 ? 'Tags '+ this.state.length+' out of '+this.state.TOTAL_COUNT : 'Tags '+ 0 }</span>
+                                    </div>
+                                    <div className="col-sm-7 padding rghtPadding">
+                                    { this.state.data.length > 0 && this.state.pageCount > 1 &&
+                                        <ReactPaginate
+                                            previousLabel={'previous'}
+                                            nextLabel={'next'}
+                                            breakLabel={'...'}
+                                            breakClassName={'break-me'}
+                                            pageCount={this.state.pageCount}
+                                            marginPagesDisplayed={2}
+                                            pageRangeDisplayed={5}
+                                            onPageChange={this.handlePageChange}
+                                            containerClassName={'pagination'}
+                                            // previousClassName={'react-paginate'}
+                                            subContainerClassName={'pages pagination'}
+                                            activeClassName={'active'}
+                                            pageClassName={'reactUI'}
+                                        />
+                                    }
+                                    </div>
                                 </div>
                             </div>
                     </div>
@@ -468,4 +478,5 @@ class Dashboard extends React.Component {
     }
 }
 export default Dashboard;
+
 

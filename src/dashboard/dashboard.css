@@ -8,19 +8,24 @@
 .search-box{
     width: 350px;
 }
-
-.pagination{
-    padding : 50px 0 50px 0;
-
+.previous{
+    padding-right: 10px;
+    color:black;
+}
+.next{
+    padding-left: 10px;
 }
 
-.react-paginate ul {
-    display: inline-block;
-    padding-left: 15px;
-    padding-right: 15px;
+.disabled{
+    background-color: #f2f2f2;
+    cursor: not-allowed; 
 }
-
-.react-paginate li {
+.active {
+    background-color: #ffff66;
+}
+.reactUI{
+    padding-left: 5px;
+    padding-right: 5px;
     display: inline-block;
 }
 .pagi{
@@ -33,5 +38,16 @@
     cursor: pointer;
 }
 
-
+.footerContainer{
+    padding-top: 15px;
+}
+.padding{
+    padding-top: 6px;
+}
+.rghtPadding{
+    padding-left: 375px;
+}
+.bgColor{
+    background-color: #f0f3f5;
+}
 
