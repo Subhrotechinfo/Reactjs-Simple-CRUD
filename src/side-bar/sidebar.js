@@ -67,7 +67,9 @@ export default class SideBar extends React.Component{
                      
                         <NavItem eventKey = "setting">
                             <NavIcon>
-                                <i className="fa fa-cogs" style={{ fontSize: '1.75em' }}></i>
+                                <Link to="/emailPiping">
+                                    <i className="fa fa-cogs" style={{ fontSize: '1.75em' }}></i>
+                                </Link>                           
                             </NavIcon>
                             <NavText>
                                 Setting

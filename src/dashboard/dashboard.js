@@ -167,6 +167,9 @@ class Dashboard extends React.Component {
                         this.getTagsDetails();
                         this.notify(result.data,'success');
                     }
+                    else if(result.success == false ){
+                        this.notify(result.error, 'error');
+                    }
                 })
                 .catch((err) => {
                     console.error(err);
@@ -216,11 +219,6 @@ class Dashboard extends React.Component {
                 this.getTagsDetails();
             });
         }
-        // else if(selected == 1){
-        //     this.setState({page:selected+1}, () => {
-        //         this.getTagsDetails();
-        //     }); 
-        // }
         else{
             this.setState({page:selected+1}, () => {
                 this.getTagsDetails();
@@ -372,7 +370,7 @@ class Dashboard extends React.Component {
                                 <div className="col-md-12 search-box">
                                         <div className="ui search">
                                             <div className="ui icon input">
-                                                <input className="prompt"  type="text" placeholder="Search your name here ^-^" onKeyUp={this.handleLog}/>
+                                                <input className="prompt"  type="text" placeholder="Search by tag name ^-^" onKeyUp={this.handleLog}/>
                                                 <i className="search icon"></i>
                                             </div>
                                         </div>

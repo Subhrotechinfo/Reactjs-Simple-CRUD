@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 // import AppRouter from '../app-router';
 import './header.css';
 
-import {withRouter} from 'react-router'
+import {withRouter} from 'react-router';
 
 class Header extends React.Component{
     constructor(props){
