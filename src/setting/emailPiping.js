@@ -8,6 +8,7 @@ import SideBar from '../side-bar/sidebar';
 import Header from '../header/header';
 import {emailValidator,checkDuplicates} from '../lib/validation';
 import {fetch} from '../lib/apiCall';
+import {notify} from '../lib/notificaton';
 
 class EmailPiping extends React.Component{
     tempDataArray = {
@@ -24,36 +25,6 @@ class EmailPiping extends React.Component{
         this.action_email = this.action_email.bind(this);
         this.inputValueChange = this.inputValueChange.bind(this);
         this.saveEmailPipingIds = this.saveEmailPipingIds.bind(this);
-    }
-
-    notify = (msg,type) => {
-        // console.log('Type -->',type);
-        switch (type) {
-            case 'success':
-                toast.success(msg);break;
-            case 'error':
-                toast.error(msg);break;
-            case 'warn':
-                toast.warn(msg);break;
-            case 'info':
-                toast.info(msg); break;
-            default:
-                toast(msg);        
-        }
-    }
-
-    fetchFunction = (URL,bodyObj) => {
-        let url  = 'https://localhost:2930/api/';
-        var authtoken = localStorage.getItem('authToken');
-        return fetch(url+URL,{
-            method:'POST',
-            headers:{
-                "content-type": "application/json; charset=utf-8",
-                "Authorization":`Bearer ${authtoken}`,
-                "web-lang": "en-US",              
-            },
-            body:JSON.stringify(bodyObj)
-            })
     }
     getEmailPipingIds(){
         return fetch('account/setting/email-piping',{value:'', mode:'view'})
@@ -79,7 +50,6 @@ class EmailPiping extends React.Component{
                 console.error(err);
             })
     }
-
     UNSAFE_componentWillMount(){
         this.state.authToken = localStorage.getItem('authToken');
         if(this.state.authToken){
@@ -89,7 +59,6 @@ class EmailPiping extends React.Component{
         }
         this.getEmailPipingIds();
     }
-
     action_email(action, index){
         if(action == 'add'){
             this.tempDataArray.data.push({value:''})
@@ -112,24 +81,21 @@ class EmailPiping extends React.Component{
             data: this.tempDataArray.data
         })
     }
-
     handleChecked = (event) => {
         const target = event.target;
         this.setState({
             isChecked: !this.state.isChecked
         });
     }
-    
     saveEmailPipingIds(){
         this.activeDisabled = this.state.isChecked;
         this.tempDataArray.status =  this.activeDisabled == true ? 'active': 'disabled';
         this.emailPipeConcat = '';
         if(checkDuplicates(this.tempDataArray.data)){
-            this.notify('Duplicates Exist', 'error')
+            notify('Duplicates Exist', 'error')
         }else{
             //Email check
             if(emailValidator(this.tempDataArray.data)){
-                // this.notify('Valid emailID ', 'info');
                 //Emails Concat
                 for(let index in this.tempDataArray.data){
                     if(index < this.tempDataArray.data.length){
@@ -143,18 +109,18 @@ class EmailPiping extends React.Component{
                 .then((response)=>{return response.json()})
                 .then((result)=>{
                     if(result.success == true){
-                        this.notify(result.data,'success');
+                        notify(result.data,'success');
                         this.getEmailPipingIds();
                     }else {
                         //change this msg
-                        this.notify(result.error,'error');
+                        notify(result.error,'error');
                     }
                 })
                 .catch((err)=>{
                     console.error(err);
                 })
             }else{
-                this.notify('Provide valid email','error');
+                notify('Provide valid email','error');
             }
         }//End Else
     }

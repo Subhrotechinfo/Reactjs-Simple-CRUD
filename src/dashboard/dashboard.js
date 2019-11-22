@@ -10,6 +10,9 @@ import ReactPaginate from 'react-paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import {fetch} from '../lib/apiCall';
+import {notify} from '../lib/notificaton';
+
 //position of the modal
 const customStyle = {
     content:{
@@ -89,25 +92,8 @@ class Dashboard extends React.Component {
         this.setState({deletemodalIsOpen:false});
     }
 
-    notify = (msg,type) => {
-        // console.log('Type -->',type);
-        switch (type) {
-            case 'success':
-                toast.success(msg);break;
-            case 'error':
-                toast.error(msg);break;
-            case 'warn':
-                toast.warn(msg);break;
-            case 'info':
-                toast.info(msg); break;
-            default:
-                toast(msg);        
-        }
-    }
-
     editSubmit(){
         // this.closeModal()
-        // this.notify('Nothing updated');
     }
 
     editTags (event){
@@ -139,7 +125,7 @@ class Dashboard extends React.Component {
     
     Api = (obj) => {
         if(obj.mode && obj.mode === 'create'){
-            this.fetchFunction('tag/add',{account_id:this.account_id, name:obj.name})
+            fetch('tag/add',{account_id:this.account_id, name:obj.name})
                 .then((response) => {
                     return response.json()
                 })
@@ -147,17 +133,17 @@ class Dashboard extends React.Component {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data, 'success');
+                        notify(result.data, 'success');
                     }else if(result.success == false){
-                        this.notify(result.error, 'error');
+                        notify(result.error, 'error');
                     }
                 })
                 .catch((err) => {
                     console.error(err);
-                    this.notify('Something went wrong','error');
+                    notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'edit'){
-            this.fetchFunction('tag/add',{name:obj.name,tag_id:obj.id})
+            fetch('tag/add',{name:obj.name,tag_id:obj.id})
                 .then((response) => {
                     return response.json()
                 })
@@ -165,18 +151,18 @@ class Dashboard extends React.Component {
                     if(result.success == true ){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data,'success');
+                        notify(result.data,'success');
                     }
                     else if(result.success == false ){
-                        this.notify(result.error, 'error');
+                        notify(result.error, 'error');
                     }
                 })
                 .catch((err) => {
                     console.error(err);
-                    this.notify('Something went wrong','error');
+                    notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'delete'){
-            this.fetchFunction('tag/delete',{tag_id:obj.tag_id})
+             fetch('tag/delete',{tag_id:obj.tag_id})
                 .then((response)=>{
                     return response.json();
                 })
@@ -184,34 +170,19 @@ class Dashboard extends React.Component {
                     if(result.success == true){
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify(result.data, 'success');
+                        notify(result.data, 'success');
                     }else{
                         this.closeModal();
                         this.getTagsDetails();
-                        this.notify('something went wrong','error');
+                        notify('something went wrong','error');
                     }
                 })
                 .catch((err)=>{
                     console.error(err);
-                    this.notify('Something went wrong','error');
+                    notify('Something went wrong','error');
                 })
         }
     }
-
-    fetchFunction = (URL,bodyObj) => {
-        let url  = 'https://localhost:2930/api/';
-        var authtoken = localStorage.getItem('authToken');
-        return fetch(url+URL,{
-            method:'POST',
-            headers:{
-                "content-type": "application/json; charset=utf-8",
-                "Authorization":`Bearer ${authtoken}`,
-                "web-lang": "en-US",              
-            },
-            body:JSON.stringify(bodyObj)
-            })
-    }
-
     handlePageChange = data => {
         let selected = data.selected;
         if(selected == 0){
@@ -228,10 +199,9 @@ class Dashboard extends React.Component {
 
     getTagsDetails(){
         //make the post request to the api
-        let url  = 'https://localhost:2930/api/tag/list';
         var authtoken = localStorage.getItem('authToken');
         if(authtoken){
-            this.fetchFunction('tag/list',{"limit": this.state.limit,"page": this.state.page,"search":this.state.search})
+            fetch('tag/list',{"limit": this.state.limit,"page": this.state.page,"search":this.state.search})
                 .then((response)=>{
                     return response.json()
                 })
