@@ -6,6 +6,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SideBar from '../side-bar/sidebar';
 import Header from '../header/header';
+import {emailValidator,checkDuplicates} from '../lib/validation';
+import {fetch} from '../lib/apiCall';
 
 class EmailPiping extends React.Component{
     tempDataArray = {
@@ -21,7 +23,7 @@ class EmailPiping extends React.Component{
         this.state = {data:[],authToken:'',isChecked:false};
         this.action_email = this.action_email.bind(this);
         this.inputValueChange = this.inputValueChange.bind(this);
-        this.saveData = this.saveData.bind(this);
+        this.saveEmailPipingIds = this.saveEmailPipingIds.bind(this);
     }
 
     notify = (msg,type) => {
@@ -43,7 +45,6 @@ class EmailPiping extends React.Component{
     fetchFunction = (URL,bodyObj) => {
         let url  = 'https://localhost:2930/api/';
         var authtoken = localStorage.getItem('authToken');
-        console.log(JSON.stringify(bodyObj));
         return fetch(url+URL,{
             method:'POST',
             headers:{
@@ -54,27 +55,24 @@ class EmailPiping extends React.Component{
             body:JSON.stringify(bodyObj)
             })
     }
-    emailPipingFetch(){
-        return this.fetchFunction('account/setting/email-piping',{value:'', mode:'view'})
+    getEmailPipingIds(){
+        return fetch('account/setting/email-piping',{value:'', mode:'view'})
             .then((response) => {return response.json()})
             .then((result) => {
-                // console.log('Result -->',result);
                 let arr = result.data[0].value
                 let x = []
                 arr = JSON.parse(arr);
-                // console.log(arr)
                 if( arr.value.split(',').length > 0 ){
                     for(let e of arr.value.split(',')){
-                        // console.log(e);
                         x.push({value:e});
                     }
                 }
-                console.log(x)
+                let checkStatus = arr.status == 'active' ? true:false;
                 this.tempDataArray.data = x;
                 this.setState({
-                    data:this.tempDataArray.data
+                    data:this.tempDataArray.data,
+                    isChecked:checkStatus
                 })
-                console.log('Temp Array -->',this.tempDataArray);
             })
             .catch((err) => {
                 console.log('Error Catched while View Email Piping');
@@ -89,23 +87,18 @@ class EmailPiping extends React.Component{
         }else{
             this.props.history.push('/');
         }
-        this.emailPipingFetch();
+        this.getEmailPipingIds();
     }
 
     action_email(action, index){
-        console.log('Action --> ', action);
         if(action == 'add'){
             this.tempDataArray.data.push({value:''})
-            console.log(this.tempDataArray.data);
             this.setState({
                 data:this.tempDataArray.data
             })
         }
-        console.log('Now array', this.tempDataArray.data);
         if(action == 'remove'){
-            console.log('Index to be removed',index)
             this.tempDataArray.data.splice(index,1);
-            console.log('--> Remove',this.tempDataArray.data);
             this.setState({
                 data:this.tempDataArray.data
             })
@@ -114,35 +107,10 @@ class EmailPiping extends React.Component{
     //Update Event
     inputValueChange(event, index){
         this.noDuplicate = false;
-        // let regex = "^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$";
-        // regex = new RegExp(regex);
-        // if(regex.test(event.target.value)){
-        //     this.notify('Valid Email','info')
-        //     this.noDuplicate = false;
-        // }else{
-        //     this.notify('Provide a valid emailId','error');
-        //     this.noDuplicate = true;
-        // }
-        console.log(event.target);
-        // this.noDuplicate = true;
-        // for(let x =0 ; x< this.tempDataArray.data.length; x++){
-        //     if(this.tempDataArray.data[x].value == event.target.value){
-        //         this.notify('Duplicate emails are not allowed','error');
-        //         this.noDuplicate = true;
-        //         this.tempDataArray.data[index] = update(this.tempDataArray.data[index], {value: {$set: event.target.value}});
-        //     }
-        // }
-        // for(let x =0 ; x< this.tempDataArray.data.length; x++){
-        //     if(this.tempDataArray.data[x].value != event.target.value) {
-        //         this.noDuplicate = false;
-        //     }
-        // }
-        
         this.tempDataArray.data[index] = update(this.tempDataArray.data[index], {value: {$set: event.target.value}});
         this.setState({
             data: this.tempDataArray.data
         })
-        // console.log('Last duplicate Value --> ', this.noDuplicate);
     }
 
     handleChecked = (event) => {
@@ -151,68 +119,44 @@ class EmailPiping extends React.Component{
             isChecked: !this.state.isChecked
         });
     }
-    checkDuplicates(array){
-        
-        for(let x of array){
-            this.setArray.push(x.value);   
-        }
-        return new Set(this.setArray).size != array.length;
-    }
-    emailValidation(emailIds){
-        let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        regex = new RegExp(regex);
-        for(let id of emailIds){
-            // console.log('E',id)
-            if(regex.match(id.value)){
-                return true;
-            }else {
-                return false;
-            }
-        }
-    }
-    saveData(){
+    
+    saveEmailPipingIds(){
         this.activeDisabled = this.state.isChecked;
         this.tempDataArray.status =  this.activeDisabled == true ? 'active': 'disabled';
         this.emailPipeConcat = '';
-        console.log('About to save', this.tempDataArray.data);
-        // console.log(this.emailValidation(this.tempDataArray.data))
-        if(this.checkDuplicates(this.tempDataArray.data)){
+        if(checkDuplicates(this.tempDataArray.data)){
             this.notify('Duplicates Exist', 'error')
         }else{
-            // this.notify('No Duplicates','info');
-            for(let index in this.tempDataArray.data){
-
-                //Email check
-                // if(this.emailValidation(this.tempDataArray.data)){
-                //     this.notify('Valid emailID ', 'info');
-                // }else{
-                //     this.notify('Provide valid email','error')
-                // }
-
-
-
-                if(index < this.tempDataArray.data.length){
-                    this.emailPipeConcat += this.tempDataArray.data[index].value;
-                    if(index < this.tempDataArray.data.length-1) this.emailPipeConcat +=',';
+            //Email check
+            if(emailValidator(this.tempDataArray.data)){
+                // this.notify('Valid emailID ', 'info');
+                //Emails Concat
+                for(let index in this.tempDataArray.data){
+                    if(index < this.tempDataArray.data.length){
+                        this.emailPipeConcat += this.tempDataArray.data[index].value;
+                        if(index < this.tempDataArray.data.length-1) this.emailPipeConcat +=',';
+                    }
                 }
+                let value  = JSON.stringify({'status':this.tempDataArray.status,'value':this.emailPipeConcat});
+                //make api call
+                fetch('account/setting/email-piping', {mode:'add-update',value:value})
+                .then((response)=>{return response.json()})
+                .then((result)=>{
+                    if(result.success == true){
+                        this.notify(result.data,'success');
+                        this.getEmailPipingIds();
+                    }else {
+                        //change this msg
+                        this.notify(result.error,'error');
+                    }
+                })
+                .catch((err)=>{
+                    console.error(err);
+                })
+            }else{
+                this.notify('Provide valid email','error');
             }
-            let value  = JSON.stringify({'status':this.tempDataArray.status,'value':this.emailPipeConcat});
-            //make api call
-            this.fetchFunction('account/setting/email-piping', {mode:'add-update',value:value})
-            .then((response)=>{return response.json()})
-            .then((result)=>{
-                if(result.success == true){
-                    this.notify(result.data,'success');
-                    this.emailPipingFetch();
-                }else {
-                    //change this msg
-                    this.notify(result.error,'error');
-                }
-            })
-            .catch((err)=>{
-                console.error(err);
-            })
-        }
+        }//End Else
     }
     render(){
         const onOff = this.state.isChecked
@@ -279,9 +223,17 @@ class EmailPiping extends React.Component{
                     })
                 }
                 </div>
-                <div className="container col-sm-12">
-                    <button className="btn btn-info" onClick={this.saveData}>Save</button>
-                </div>
+                {
+                    this.state.data.length > 0 &&   <div className="container col-sm-12">
+                                                        <button className="btn btn-info" onClick={this.saveEmailPipingIds}>Save</button>
+                                                    </div>
+                }
+                {
+                    this.state.data.length == 0 &&  <div>
+                                                        <p className="text-muted">No records to display</p>
+                                                    </div>
+                }
+                
                 
             </div>
         );
