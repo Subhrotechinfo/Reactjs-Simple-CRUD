@@ -5,6 +5,7 @@ import Dashboard from './dashboard/dashboard';
 import { BrowserRouter as Router, Route} from 'react-router-dom'
 import Profile from './profile/profile';
 import EmailPiping from './setting/emailPiping';
+import Timezone from './timezone-setting/timezone';
 
 const AppRouter = () => {
     return (
@@ -13,6 +14,7 @@ const AppRouter = () => {
             <Route component={Dashboard} path="/dashboard" ></Route>
             <Route component={Profile} path="/profile" ></Route>
             <Route component={EmailPiping} path='/emailPiping'></Route> 
+            <Route component= {Timezone} path='/timezone'></Route>
         </Router>
     );
 }

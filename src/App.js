@@ -18,6 +18,7 @@ class Appy extends React.Component{
       <div className="Appy">
         <header className="Appy-Header">
           <p>Subhro Chatterjee</p>
+          <script src="../lib/jquery-jvectormap-world-mill.js"></script>
         </header>
         <body>
           <img src={logo} className="App-logo" alt="logo"/> 
