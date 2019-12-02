@@ -6,6 +6,7 @@
 - Semantic UI 
 - Sidebar 
 - Modal
+- Map Integrated - JVectorMap
 
 ### Author
 Subhro Chatterjee

@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import SideBar from '../side-bar/sidebar';
 import Header from '../header/header';
 import {emailValidator,checkDuplicates} from '../lib/validation';
-import {fetch} from '../lib/apiCall';
+import {fetchFn} from '../lib/apiCall';
 import {notify} from '../lib/notificaton';
 
 class EmailPiping extends React.Component{
@@ -27,7 +27,7 @@ class EmailPiping extends React.Component{
         this.saveEmailPipingIds = this.saveEmailPipingIds.bind(this);
     }
     getEmailPipingIds(){
-        return fetch('account/setting/email-piping',{value:'', mode:'view'})
+        return fetchFn('account/setting/email-piping',{value:'', mode:'view'})
             .then((response) => {return response.json()})
             .then((result) => {
                 let arr = result.data[0].value
@@ -105,7 +105,7 @@ class EmailPiping extends React.Component{
                 }
                 let value  = JSON.stringify({'status':this.tempDataArray.status,'value':this.emailPipeConcat});
                 //make api call
-                fetch('account/setting/email-piping', {mode:'add-update',value:value})
+                fetchFn('account/setting/email-piping', {mode:'add-update',value:value})
                 .then((response)=>{return response.json()})
                 .then((result)=>{
                     if(result.success == true){

@@ -1,4 +1,4 @@
-export const fetch = (URL,bodyObj) => {
+export const fetchFn = (URL,bodyObj) => {
     let url  = 'https://localhost:2930/api/';
     var authtoken = localStorage.getItem('authToken');
     return fetch(url+URL,{

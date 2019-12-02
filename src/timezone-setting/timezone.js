@@ -1,72 +1,102 @@
 import React from 'react';
-import * as cnty from 'countries-and-timezones'
+// import * as cnty from 'countries-and-timezones'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './timezone.css';
 import '../lib/jquery-jvectormap.css';
-// import $ from 'jquery';
-// import  window from 'jquery';
-// import jQuery from 'jquery';
 import { VectorMap } from 'react-jvectormap';
-import { thisTypeAnnotation } from '@babel/types';
+import { worldTimeZoneList } from './timezonegdp';
+import update from 'immutability-helper';
+
+import { ToastContainer} from 'react-toastify';
 
 class Timezone extends React.Component {
-    country = [];
-    timezone = 'null';
-    timezoneList = [];
+    country = [1,2,3];
+    timezone = [];
+    timezoneList=[];
+    timezoneObject = {};
+    regionSelect='IN'
+    jVectorMapRegion = [];
     constructor(){
         super();
         this.state = {
-            regionSelect:'IN'
+            regionSelect:'IN',      //Default set to India
+            data:[],
+            checkRegion:'IN'
         }
         this.regionClick = this.regionClick.bind(this);
         this.regionSelected = this.regionSelected.bind(this);
+        this.markerSelected = this.markerSelected.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.saveTimeZone = this.saveTimeZone.bind(this);
     }
     regionClick(e, countrycode){
-        console.log('Region selected Code', countrycode);
+        console.log('Region Click Code', countrycode);
         this.setState({
             regionSelect:countrycode
         })
-        console.log('Fetch the time zone');
-        this.fetchTimeZone(countrycode);
+        this.timezoneList.map((value, index)=>{
+            this.timezone.push(value.title);
+        });
+        this.setState({
+            checkRegion:countrycode
+        })
+        console.log('Region ', this.state);
     }
     regionSelected(e, code, isSelected){
         // console.log('Region Selected --> ',e, isSelected);
         // console.log('Fetch the time zone',);
     }
-    fetchTimeZone = (countryCode) => {
-        console.log('Called')
-        this.timezone = cnty.getAllTimezones();
-        console.log('Timezone --> ', this.timezone);
-        // (UTC-06:00) Guadalajara, Mexico City, Monterrey
-        // fetch('')
+    markerSelected(e, code, isSelected){
+        // console.log('Marker Selcted --> ', code);
+        // console.log(marker1[code]);
     }
-    
+    handleChange(e){
+        let countryId = e.target.value;
+        console.log('Handle change Id-->',countryId);
+        let mapObj = this.refs.map.$mapObject;
+        this.jVectorMapRegion.push(mapObj.regions);
+        if(countryId != null && countryId){
+            //check for JVECTOR MAP Regions availability
+            if(this.jVectorMapRegion[0][countryId]){
+                mapObj.clearSelectedRegions();
+                mapObj.setSelectedRegions(countryId); 
+                // Set state here
+                console.log('Red -State',this.state);
+                let savedStateValue = this.state.checkRegion;
+                let updatedStateValue= update(savedStateValue,{$set:countryId});
+                this.setState({
+                    checkRegion:updatedStateValue,
+                    regionSelect:updatedStateValue
+                })
+                console.log('Now state after update --> ', this.state);           
+            }else {
+                // notify('Region Not available', 'error')
+                console.log('Invalid regions --> ', countryId);
+            }
+        }else{
+            mapObj.clearSelectedRegions();
+            console.log('Error Occured');
+        }
+                
+    }
+    saveTimeZone(){
+        console.log('Save state to hit the API and fetch the saved value', this.state.checkRegion);
+        //Fetch the Data and then set the state[checkRegion, regionSelect] to update the map.        
+    }    
     componentWillMount(){
-        // this.drawMap();
-        // this.country = cnty.getAllCountries();
-        // const countryValues = Object.values(this.country)
-        // console.log('Value', countryValues);
-        // for(let item of countryValues){
-        //     console.log(item.timezones[0]);
-        //     this.timezone = cnty.getTimezone(item.timezones[0]);
-        //     this.timezoneList.push('GMT');
-
-        //     console.log(this.timezone)
-        // }
-        // console.log('Country --> ', this.country);
-        // console.log('Timezone --> ', this.timezone);
+        worldTimeZoneList.map((value, i)=>{
+            console.log(value); 
+        })
+        this.setState({
+            data:worldTimeZoneList
+        })
     }
     render(){
         return (
             <div className="container">
                 <div className="col-sm-12">
-                    <div className="dropdown">
-                        <select className="form-control">
-                            <option>1</option>
-                        </select>
-                    </div>
-                    
-                    <div className="worldmap">
+                <ToastContainer autoClose={3000}/>
+                    <div className="worldmap" ref="worldmap">
                             <VectorMap 
                                 map={'world_mill'}
                                 zoomOnScroll={false}
@@ -83,7 +113,31 @@ class Timezone extends React.Component {
                                 onRegionTipShow = {(e,el,code)=>{
                                     e.preventDefault();
                                 }}
+                                // series={{
+                                //     regions:[
+                                //         {
+                                //             values: gdpData,
+                                //             scale: ["#146804", "#ff0000"],
+                                //         }
+                                //     ]
+                                // }}
+                                // markers = {marker1} 
+                                // markersSelectable={true}
+                                // markersSelectableOne={true}
+                                // onMarkerClick={this.markerSelected}
                             />
+                        </div>
+                        <div className="dropdown">
+                            <select className="form-control" value={this.state.checkRegion} onChange={this.handleChange}>
+                                {
+                                    this.state.data.map((zone,i)=>{
+                                        return <option className="form-control" value={zone.countryCode} key={i}>{zone.text}</option>
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <button className="btn btn-success" onClick={this.saveTimeZone}>Save</button>
                         </div>
                         
                     </div>

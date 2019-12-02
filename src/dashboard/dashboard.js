@@ -7,10 +7,10 @@ import Header from '../header/header';
 import SideBar from '../side-bar/sidebar';
 import Modal from 'react-modal';
 import ReactPaginate from 'react-paginate';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import {fetch} from '../lib/apiCall';
+import {fetchFn} from '../lib/apiCall';
 import {notify} from '../lib/notificaton';
 
 //position of the modal
@@ -125,7 +125,7 @@ class Dashboard extends React.Component {
     
     Api = (obj) => {
         if(obj.mode && obj.mode === 'create'){
-            fetch('tag/add',{account_id:this.account_id, name:obj.name})
+            fetchFn('tag/add',{account_id:this.account_id, name:obj.name})
                 .then((response) => {
                     return response.json()
                 })
@@ -143,7 +143,7 @@ class Dashboard extends React.Component {
                     notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'edit'){
-            fetch('tag/add',{name:obj.name,tag_id:obj.id})
+            fetchFn('tag/add',{name:obj.name,tag_id:obj.id})
                 .then((response) => {
                     return response.json()
                 })
@@ -162,7 +162,7 @@ class Dashboard extends React.Component {
                     notify('Something went wrong','error');
                 })
         }else if(obj.mode && obj.mode == 'delete'){
-             fetch('tag/delete',{tag_id:obj.tag_id})
+             fetchFn('tag/delete',{tag_id:obj.tag_id})
                 .then((response)=>{
                     return response.json();
                 })
@@ -201,7 +201,7 @@ class Dashboard extends React.Component {
         //make the post request to the api
         var authtoken = localStorage.getItem('authToken');
         if(authtoken){
-            fetch('tag/list',{"limit": this.state.limit,"page": this.state.page,"search":this.state.search})
+            fetchFn('tag/list',{"limit": this.state.limit,"page": this.state.page,"search":this.state.search})
                 .then((response)=>{
                     return response.json()
                 })
