@@ -75,6 +75,16 @@ export default class SideBar extends React.Component{
                                 Setting
                             </NavText>
                         </NavItem>
+                        <NavItem eventKey = "map">
+                            <NavIcon>
+                                <Link to="/timezone">
+                                    <i className="fa fa-map-marker" style={{ fontSize: '1.75em' }}></i>
+                                </Link>                           
+                            </NavIcon>
+                            <NavText>
+                                Map
+                            </NavText>
+                        </NavItem>
                     </SideNav.Nav>
                 </SideNav>
             </div>

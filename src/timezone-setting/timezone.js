@@ -8,6 +8,9 @@ import { worldTimeZoneList } from './timezonegdp';
 import update from 'immutability-helper';
 import { fetchFn } from '../lib/apiCall';
 import { ToastContainer} from 'react-toastify';
+import { notify } from '../lib/notificaton'
+import Header from '../header/header';
+import SideBar from '../side-bar/sidebar';
 
 class Timezone extends React.Component {
     country = [1,2,3];
@@ -91,7 +94,6 @@ class Timezone extends React.Component {
             .then((result)=>{
                 console.log('Result --> ', result);
                 // this.setState()
-
             })
             .catch((err)=>{
                 console.error(err);
@@ -110,68 +112,86 @@ class Timezone extends React.Component {
                 return response.json()
             })
             .then((result)=>{
-                console.log(result.data.timezone);
-                let timezone = result.data.timezone;
-                let savedTimeZone = '';
-                worldTimeZoneList.map((item, index)=>{
-                    // console.log(item.countryCode);
-                    if(item.countryCode == timezone.value){
-                        console.log('-->',item);
-                        savedTimeZone = item; 
-                    }
-                });
-                console.log('x', savedTimeZone);
-                    // let savedStateValue = this.state ;
-                    // console.log('satate ->',savedStateValue);
+                if(result.success = true){
+                    console.log(result.data.timezone);
+                    let timezone = result.data.timezone;
+                    let savedTimeZone = '';
+                    worldTimeZoneList.map((item, index)=>{
+                        // console.log(item.countryCode);
+                        if(item.countryCode == timezone.value){
+                            console.log('-->',item);
+                            savedTimeZone = item; 
+                        }
+                    });
+                    console.log('x', savedTimeZone);
                     this.setState({
                         regionSelect:savedTimeZone.countryCode,
                         checkRegion:savedTimeZone.countryCode
-                    })
-                    console.log('Updated',this.state)
+                    });
+                    let mapObj = this.refs.map.$mapObject;
+                    mapObj.setSelectedRegions(timezone.value);
+                    console.log('Updated',this.state);
+                }else {
+                    notify('Error Occured', 'error');
+                }
             })
             .catch((err)=>{
+                notify('Failed to hit API', 'error');
                 console.error(err);
                 console.warn('Error Occured during Component will Mount');
             });
 
     }
     render(){
+        //Adding Inline style
+        let dropdown = {
+            width:'650px'
+        };
         return (
-            <div className="container">
+            <div>
                 <div className="col-sm-12">
-                <ToastContainer autoClose={3000}/>
-                    <div className="worldmap" ref="worldmap">
-                            <VectorMap 
-                                map={'world_mill'}
-                                zoomOnScroll={false}
-                                ref="map"
-                                regionsSelectableOne= {false}
-                                containerStyle={{
-                                    width:'950px',
-                                    height: '450px'
-                                }}
-                                containerClassName="map"
-                                selectedRegions={this.state.regionSelect}
-                                onRegionClick= {this.regionClick}
-                                onRegionSelected= {this.regionSelected}
-                                onRegionTipShow = {(e,el,code)=>{
-                                    e.preventDefault();
-                                }}
-                                // series={{
-                                //     regions:[
-                                //         {
-                                //             values: gdpData,
-                                //             scale: ["#146804", "#ff0000"],
-                                //         }
-                                //     ]
-                                // }}
-                                // markers = {marker1} 
-                                // markersSelectable={true}
-                                // markersSelectableOne={true}
-                                // onMarkerClick={this.markerSelected}
-                            />
-                        </div>
-                        <div className="dropdown">
+                    <Header/>
+                </div>
+                <SideBar/>
+                <div clasName="col-sm-12"> ssssssss</div>
+                <div className="container">
+                    <div className="col-sm-12">
+                        <ToastContainer autoClose={3000}/>
+                            <div className="worldmap" ref="worldmap">
+                                <VectorMap 
+                                    map={'world_mill'}
+                                    zoomOnScroll={false}
+                                    ref="map"
+                                    regionsSelectableOne= {false}
+                                    containerStyle={{
+                                        width:'950px',
+                                        height: '450px'
+                                    }}
+                                    containerClassName="map"
+                                    selectedRegions={this.state.regionSelect}
+                                    onRegionClick= {this.regionClick}
+                                    onRegionSelected= {this.regionSelected}
+                                    onRegionTipShow = {(e,el,code)=>{
+                                        e.preventDefault();
+                                    }}
+                                    // series={{
+                                    //     regions:[
+                                    //         {
+                                    //             values: gdpData,
+                                    //             scale: ["#146804", "#ff0000"],
+                                    //         }
+                                    //     ]
+                                    // }}
+                                    // markers = {marker1} 
+                                    // markersSelectable={true}
+                                    // markersSelectableOne={true}
+                                    // onMarkerClick={this.markerSelected}
+                                />
+                            </div>
+                    </div>
+                    {/* <div className="col-sm-12"><br/></div> */}
+                    <div className="col-sm-12">
+                        <div className="dropdown pt-3" style={dropdown}>
                             <select className="form-control" value={this.state.checkRegion} onChange={this.handleChange}>
                                 {
                                     this.state.data.map((zone,i)=>{
@@ -180,12 +200,12 @@ class Timezone extends React.Component {
                                 }
                             </select>
                         </div>
-                        <div>
+                        <div className="pt-3">
                             <button className="btn btn-success" onClick={this.saveTimeZone}>Save</button>
                         </div>
                     </div>
                 </div>
-            
+            </div>            
         )
     }
 } 
