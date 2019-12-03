@@ -153,7 +153,7 @@ class Timezone extends React.Component {
                     <Header/>
                 </div>
                 <SideBar/>
-                <div clasname="col-sm-12"> ssssssss</div>
+                <div clasname="col-sm-12"> ssssssssee</div>
                 <div className="container">
                     <div className="col-sm-12">
                         <ToastContainer autoClose={3000}/>
@@ -168,7 +168,7 @@ class Timezone extends React.Component {
                                              hover:{
                                                 cursor: 'pointer'
                                              },selected: {
-                                                fill: '#eeccff'
+                                                fill: '#4d0099'
                                             },
                                             }}
                                     zoomOnScroll={false}
@@ -180,16 +180,11 @@ class Timezone extends React.Component {
                                     }}
                                     containerClassName="map"
                                     selectedRegions={this.state.regionSelect}
-                                    onRegionClick= {(e)=>{
-                                        this.regionClick();e.preventDefault()
-                                    }}
-                                    onRegionSelected= {(e)=>{
-                                        e.preventDefault();
-                                        this.regionSelected();
-                                    }}
+                                    onRegionClick= {this.regionClick}
+                                    onRegionSelected= {this.regionSelected}
                                     onRegionTipShow = {(e,el,code)=>{
                                         e.preventDefault();
-                                        el.html(el.html()+'(GDP -'+ gdpData[code]+')'        )
+                                        // el.html(el.html()+'(GDP -'+ gdpData[code]+')'        )
                                     }}
                                     // series={{
                                     //     regions:[
