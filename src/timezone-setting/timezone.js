@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './timezone.css';
 import '../lib/jquery-jvectormap.css';
 import { VectorMap } from 'react-jvectormap';
-import { worldTimeZoneList } from './timezonegdp';
+import { worldTimeZoneList, gdpData } from './timezonegdp';
 import update from 'immutability-helper';
 import { fetchFn } from '../lib/apiCall';
 import { ToastContainer} from 'react-toastify';
@@ -153,13 +153,24 @@ class Timezone extends React.Component {
                     <Header/>
                 </div>
                 <SideBar/>
-                <div clasName="col-sm-12"> ssssssss</div>
+                <div clasname="col-sm-12"> ssssssss</div>
                 <div className="container">
                     <div className="col-sm-12">
                         <ToastContainer autoClose={3000}/>
                             <div className="worldmap" ref="worldmap">
                                 <VectorMap 
                                     map={'world_mill'}
+                                    backgroundColor='white'
+                                    regionStyle= {{
+                                             initial:{
+                                                 fill:'#dd99ff',
+                                             },
+                                             hover:{
+                                                cursor: 'pointer'
+                                             },selected: {
+                                                fill: '#eeccff'
+                                            },
+                                            }}
                                     zoomOnScroll={false}
                                     ref="map"
                                     regionsSelectableOne= {false}
@@ -169,10 +180,16 @@ class Timezone extends React.Component {
                                     }}
                                     containerClassName="map"
                                     selectedRegions={this.state.regionSelect}
-                                    onRegionClick= {this.regionClick}
-                                    onRegionSelected= {this.regionSelected}
+                                    onRegionClick= {(e)=>{
+                                        this.regionClick();e.preventDefault()
+                                    }}
+                                    onRegionSelected= {(e)=>{
+                                        e.preventDefault();
+                                        this.regionSelected();
+                                    }}
                                     onRegionTipShow = {(e,el,code)=>{
                                         e.preventDefault();
+                                        el.html(el.html()+'(GDP -'+ gdpData[code]+')'        )
                                     }}
                                     // series={{
                                     //     regions:[
