@@ -6,7 +6,7 @@ import '../lib/jquery-jvectormap.css';
 import { VectorMap } from 'react-jvectormap';
 import { worldTimeZoneList } from './timezonegdp';
 import update from 'immutability-helper';
-
+import { fetchFn } from '../lib/apiCall';
 import { ToastContainer} from 'react-toastify';
 
 class Timezone extends React.Component {
@@ -19,9 +19,9 @@ class Timezone extends React.Component {
     constructor(){
         super();
         this.state = {
-            regionSelect:'IN',      //Default set to India
+            regionSelect:'',      //Default set to India
             data:[],
-            checkRegion:'IN'
+            checkRegion:''
         }
         this.regionClick = this.regionClick.bind(this);
         this.regionSelected = this.regionSelected.bind(this);
@@ -74,22 +74,66 @@ class Timezone extends React.Component {
                 console.log('Invalid regions --> ', countryId);
             }
         }else{
-            mapObj.clearSelectedRegions();
+            // mapObj.clearSelectedRegions();
             console.log('Error Occured');
         }
                 
     }
     saveTimeZone(){
-        console.log('Save state to hit the API and fetch the saved value', this.state.checkRegion);
-        //Fetch the Data and then set the state[checkRegion, regionSelect] to update the map.        
-    }    
+        console.log('Save state to hit the API and fetch the saved value -->', this.state.checkRegion);
+        //Fetch the Data and then set the state[checkRegion, regionSelect] to update the map.
+        // API URL --> https://app.acquire.io/api/account/setting/save-theme
+
+        fetchFn('account/setting/save-theme', {"chat_setting":"Save Changes", "setting_log_type":"operating_hour","timezone":this.state.checkRegion})
+            .then((response)=>{
+                return response.json()
+            })
+            .then((result)=>{
+                console.log('Result --> ', result);
+                // this.setState()
+
+            })
+            .catch((err)=>{
+                console.error(err);
+                console.warn('Error catched');
+            })
+    }
     componentWillMount(){
         worldTimeZoneList.map((value, i)=>{
-            console.log(value); 
+            // console.log(value); 
         })
         this.setState({
             data:worldTimeZoneList
         })
+        fetchFn('account/setting/get-all-setting',{})
+            .then((response)=>{
+                return response.json()
+            })
+            .then((result)=>{
+                console.log(result.data.timezone);
+                let timezone = result.data.timezone;
+                let savedTimeZone = '';
+                worldTimeZoneList.map((item, index)=>{
+                    // console.log(item.countryCode);
+                    if(item.countryCode == timezone.value){
+                        console.log('-->',item);
+                        savedTimeZone = item; 
+                    }
+                });
+                console.log('x', savedTimeZone);
+                    // let savedStateValue = this.state ;
+                    // console.log('satate ->',savedStateValue);
+                    this.setState({
+                        regionSelect:savedTimeZone.countryCode,
+                        checkRegion:savedTimeZone.countryCode
+                    })
+                    console.log('Updated',this.state)
+            })
+            .catch((err)=>{
+                console.error(err);
+                console.warn('Error Occured during Component will Mount');
+            });
+
     }
     render(){
         return (
@@ -139,7 +183,6 @@ class Timezone extends React.Component {
                         <div>
                             <button className="btn btn-success" onClick={this.saveTimeZone}>Save</button>
                         </div>
-                        
                     </div>
                 </div>
             
