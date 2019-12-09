@@ -9,4 +9,4 @@
 - Map Integrated - JVectorMap
 
 ### Author
-Subhro Chatterjee
+Subhro Chatterjee | 2019 | :pray:
